@@ -1,4 +1,4 @@
-FROM ubuntu:15.04
+FROM ubuntu:16.04
 MAINTAINER Francesco Favero <favero@cbs.dtu.dk>
 RUN apt-get update && apt-get install -y r-base pypy samtools bowtie2
 ADD exec/sequenza-utils /usr/local/bin/sequenza-utils
