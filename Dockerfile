@@ -3,7 +3,6 @@ MAINTAINER Francesco Favero <favero@cbs.dtu.dk>
 RUN apt-get update \
    && apt-get install -y --no-install-recommends \
       samtools \
-      tabix \
       pypy \
    && rm -rf /var/lib/apt/lists/*
 
