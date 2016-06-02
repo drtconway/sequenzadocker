@@ -1,6 +1,6 @@
 FROM r-base:latest
 MAINTAINER Francesco Favero <favero@cbs.dtu.dk>
-RUN apt-get update
+RUN apt-get update \
    && apt-get install -y --no-install-recommends \
       samtools \
       tabix \
