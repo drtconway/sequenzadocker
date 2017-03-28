@@ -1,4 +1,4 @@
-FROM r-base:latest
+FROM r-base:3.3.3
 MAINTAINER Francesco Favero <favero@cbs.dtu.dk>
 RUN apt-get update \
    && apt-get install -y --no-install-recommends \
@@ -7,6 +7,7 @@ RUN apt-get update \
       samtools \
       tabix \
       bwa \
+      python \
       pypy \
    && rm -rf /var/lib/apt/lists/*
 
