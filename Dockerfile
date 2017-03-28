@@ -2,8 +2,11 @@ FROM r-base:latest
 MAINTAINER Francesco Favero <favero@cbs.dtu.dk>
 RUN apt-get update \
    && apt-get install -y --no-install-recommends \
+      libcurl4-openssl-dev \
+      libxml2-dev \
       samtools \
       tabix \
+      bwa \
       pypy \
    && rm -rf /var/lib/apt/lists/*
 
