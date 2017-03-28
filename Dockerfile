@@ -7,7 +7,8 @@ RUN apt-get update \
       samtools \
       tabix \
       bwa \
-      python python-setuptools python-pip\
+      python \
+      python-dev python-setuptools python-pip \
       pypy \
    && rm -rf /var/lib/apt/lists/*
 
