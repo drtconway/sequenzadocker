@@ -122,8 +122,7 @@ def main():
     ref_dict = {'genome_fa_gz': args.ref_gz}
 
     create_symlinks(ref_dict, profile, log)
-    data_dir = '/Users/lgq442/src/sequenza_pype_modules/data'
-    # data_dir = '/data'
+    data_dir = '/data'
     bam_files = setup_bams(args.tumor_bam, args.normal_bam,
                            data_dir, profile, log, args.ref_gc_wig)
 
