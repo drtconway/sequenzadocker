@@ -31,4 +31,4 @@ RUN useradd -ms /bin/bash sequenza
 USER sequenza
 WORKDIR /home/sequenza
 
-CMD ["/usr/bin/sequenza-pipeline"]
+CMD ["/bin/bash"]
