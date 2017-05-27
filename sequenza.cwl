@@ -5,10 +5,6 @@ id: sequenza_workflow
 label: sequenza_workflow
 cwlVersion: v1.0
 
-doc: |
-    ![build_status](https://....)
-    A workflow with the sequenza docker container
-
 dct:creator:
   '@id': http://orcid.org/0000-0003-3684-2659
   foaf:name: Francesco Favero
@@ -79,4 +75,14 @@ outputs:
       glob: "*.tar.gz"
 
 baseCommand: [/usr/bin/sequenza-pipeline]
+doc: |
+    <img src="https://bytebucket.org/sequenza_tools/icons/raw/d052aca4367bf5033bd5b8cf404320ec22f01202/svg/sequenza_tools/sequenzaalpha.svg" width="150" height="150">
+
+    ![build_status](https://img.shields.io/docker/build/sequenza/sequenza.svg)
+    ![docker_pulls](https://img.shields.io/docker/pulls/sequenza/sequenza.svg)
+    ![docker_builds](https://img.shields.io/docker/automated/sequenza/sequenza.svg)
+
+    **Sequenza workflow**
+
+    Allele-specific SCNA analysis from tumor/normal sequencing with the sequenza docker container
 
