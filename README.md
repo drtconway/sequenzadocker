@@ -1,4 +1,4 @@
-<img src="https://bytebucket.org/sequenza_tools/icons/raw/d052aca4367bf5033bd5b8cf404320ec22f01202/svg/sequenza_tools/sequenzaalpha.svg" width="150" height="150">
+<img src="https://bytebucket.org/sequenza_tools/icons/raw/d052aca4367bf5033bd5b8cf404320ec22f01202/svg/sequenza_tools/sequenzaalpha.svg" width="150" height="150" />
 
 ![build_status](https://img.shields.io/docker/build/sequenza/sequenza.svg)
 ![docker_pulls](https://img.shields.io/docker/pulls/sequenza/sequenza.svg)
@@ -15,6 +15,8 @@ Use this sample [sequenza_cwl.json](https://bitbucket.org/sequenza_tools/sequenz
 ```
    $ dockstore tool launch --entry registry.hub.docker.com/sequenza/sequenza  --json sequenza_cwl.json
 ```
+
+
 
 
 *Interactive in Docker*
