@@ -16,7 +16,7 @@ Use this sample [sequenza_cwl.json](https://bitbucket.org/sequenza_tools/sequenz
    $ dockstore tool launch --entry registry.hub.docker.com/sequenza/sequenza  --json sequenza_cwl.json
 ```
 
-
+More information and instruction are available in the tool [docstore](https://dockstore.org/containers/registry.hub.docker.com/sequenza/sequenza) project page.
 
 
 *Interactive in Docker*
