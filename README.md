@@ -3,7 +3,7 @@
 Workflow
 ________
 
-Add some data to a folder i the host:
+Add some data to a folder in the host:
 
 ```
 ls -1 input/
@@ -13,7 +13,8 @@ ls -1 input/
     testtum.bam
 ```
 
-Bind the folder in docker
+Mount the folder in docker
+
 ```
 docker run -ti \
    -v `pwd`/input:/input \
@@ -21,7 +22,14 @@ docker run -ti \
 
 ```
 
-Run the pipeline inside docker
+Look around
+```
+ls /input
+
+sequenza-pipeline --help
+```
+
+Run the pipeline in docker
 
 ```
 sequenza-pipeline \
