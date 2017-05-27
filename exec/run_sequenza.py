@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import gzip
 import shlex
 import subprocess
 import tarfile
@@ -24,6 +25,45 @@ def create_symlinks(ref_dict, profile, log):
             os.symlink(ref_dict[key], profile.files[key])
 
 
+def index_fa_gz(fa_gz, log):
+    idx_genome = ['samtools', 'faidx', fa_gz]
+    idx_genome = shlex.split(' '.join(map(str, idx_genome)))
+    log.log.info('Index %s' % ' '.join(map(str, idx_genome)))
+    idx_genome_proc = subprocess.Popen(idx_genome)
+    idx_genome_proc.communicate()[0]
+    code = idx_genome_proc.returncode
+    if code > 0:
+        log.log.warning('Index of %s returned code %s' % (fa_gz, code))
+        if fa_gz.endswith('.gz'):
+            fa = fa_gz[:-3]
+            with open(fa, 'wt') as genome_fa:
+                try:
+                    log.log.info('Unzip %s to %s' % (fa_gz, fa))
+                    with gzip.open(fa_gz, 'rt') as genome_fa_gz:
+                        for line in genome_fa_gz:
+                            genome_fa.write(line)
+                except IOError:
+                    log.log.warning('IOError while unzip %s' % fa_gz)
+            log.log.info('Remove old %s' % fa_gz)
+            rm = ['rm', '-f', fa_gz]
+            rm = shlex.split(' '.join(map(str, rm)))
+            log.log.info('Remove %s' % ' '.join(map(str, rm)))
+            rm_proc = subprocess.Popen(rm)
+            rm_proc.communicate()[0]
+
+            log.log.info('Compress %s with bgzip' % fa)
+            bgzip = ['bgzip', '-f', fa]
+            bgzip = shlex.split(' '.join(map(str, bgzip)))
+            log.log.info('Bgzip compress %s' % ' '.join(map(str, bgzip)))
+            bgzip_proc = subprocess.Popen(bgzip)
+            bgzip_proc.communicate()[0]
+            idx_genome = ['samtools', 'faidx', fa_gz]
+            idx_genome = shlex.split(' '.join(map(str, idx_genome)))
+            log.log.info('Attemp #2 Index %s' % ' '.join(map(str, idx_genome)))
+            idx_genome_proc = subprocess.Popen(idx_genome)
+            idx_genome_proc.communicate()[0]
+
+
 def setup_bams(tumor, normal, bam_path, profile_obj, log, wig):
     tumor_link = os.path.join(bam_path, 'tumor.bam')
     normal_link = os.path.join(bam_path, 'normal.bam')
@@ -33,7 +73,6 @@ def setup_bams(tumor, normal, bam_path, profile_obj, log, wig):
     os.symlink(normal, normal_link)
     idx_tumor = ['samtools', 'index', tumor_link]
     idx_normal = ['samtools', 'index', normal_link]
-    idx_genome = ['samtools', 'faidx', profile_obj.files['genome_fa_gz']]
     gc50_wig = ['sequenza-utils', 'gc_wiggle',
                 '-f', profile_obj.files['genome_fa_gz'],
                 '-o', profile_obj.files['genome_gc_wig'],
@@ -41,7 +80,6 @@ def setup_bams(tumor, normal, bam_path, profile_obj, log, wig):
 
     idx_tumor = shlex.split(' '.join(map(str, idx_tumor)))
     idx_normal = shlex.split(' '.join(map(str, idx_normal)))
-    idx_genome = shlex.split(' '.join(map(str, idx_genome)))
     gc50_wig = shlex.split(' '.join(map(str, gc50_wig)))
 
     log.log.info('Index %s' % ' '.join(map(str, idx_tumor)))
@@ -50,9 +88,9 @@ def setup_bams(tumor, normal, bam_path, profile_obj, log, wig):
     log.log.info('Index %s' % ' '.join(map(str, idx_normal)))
     idx_normal_proc = subprocess.Popen(idx_normal)
     idx_normal_proc.communicate()[0]
-    log.log.info('Index %s' % ' '.join(map(str, idx_genome)))
-    idx_genome_proc = subprocess.Popen(idx_genome)
-    idx_genome_proc.communicate()[0]
+
+    index_fa_gz(profile_obj.files['genome_fa_gz'], log)
+
     if wig is None:
         log.log.info('GC wig %s' % ' '.join(map(str, gc50_wig)))
         gc50_wig_proc = subprocess.Popen(gc50_wig)
