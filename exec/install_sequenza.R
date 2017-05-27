@@ -1,6 +1,6 @@
-source("https://bioconductor.org/biocLite.R")
+packages <- c("sequenza")
 
-biocLite(pkgs=c("copynumber"), suppressAutoUpdate= TRUE, ask = FALSE, suppressUpdates= TRUE)
-install.packages(pkgs="sequenza",
-                 repos=c("http://cran.rstudio.com")
-)
+setRepositories(graphics = FALSE, ind = 1:6)
+chooseCRANmirror(graphics = FALSE, ind = 2)
+
+install.packages(packages)
