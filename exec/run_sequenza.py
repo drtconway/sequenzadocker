@@ -159,7 +159,10 @@ def main():
                               '0.9 and 10 separated by "-". Default 1-7'),
                         default='1-7')
     parser.add_argument('--no_archive',  dest='no_arch',
-                        help='Set to avoid tar of output.',
+                        help='Set to avoid tar of output',
+                        action='store_true')
+    parser.add_argument('--home_data',  dest='home_data',
+                        help='Set the data in user home instead of /data',
                         action='store_true')
     args = parser.parse_args()
     archive_res = not args.no_arch
@@ -186,7 +189,11 @@ def main():
     ref_dict = {'genome_fa_gz': args.ref_gz}
 
     create_symlinks(ref_dict, profile, log)
-    data_dir = '/data'
+    if args.home_data:
+        data_dir = os.path.join(os.getcwd(), 'data')
+        os.mkdir(data_dir)
+    else:
+        data_dir = '/data'
     bam_files = setup_bams(args.tumor_bam, args.normal_bam,
                            data_dir, profile, log, args.ref_gc_wig)
 
