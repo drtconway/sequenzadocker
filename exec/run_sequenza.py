@@ -194,7 +194,7 @@ def main():
                 os.path.join(output_dir, 'seqz')]
     for out_dir in out_dirs:
         if not os.path.isdir(out_dir):
-            os.mkdir(out_dir)
+            os.makedirs(out_dir)
 
     pype_cmd = ['pype', '--profile', use_profile, 'pipelines',
                 '--queue', 'parallel', '--log', log_dir,
