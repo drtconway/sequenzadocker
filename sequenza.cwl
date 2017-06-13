@@ -51,11 +51,6 @@ inputs:
     inputBinding:
       position: 6
       prefix: --bin
-  bin:
-    type: ["null", int]
-    inputBinding:
-      position: 6
-      prefix: --bin
   mem:
     type: ["null", int]
     inputBinding:
