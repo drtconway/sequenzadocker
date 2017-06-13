@@ -113,13 +113,14 @@ def main():
     parser.add_argument('--tumor-bam', '-t',  dest='tumor_bam',
                         help='Tumor Bam file',  required=True)
     parser.add_argument('--reference-gz', '-f', dest='ref_gz',
-                        help='Genome reference gz-compressed file',
+                        help=('Genome reference gz-compressed file '
+                              '(or plain text)'),
                         required=True)
     parser.add_argument('--gc_wig', '-w', dest='ref_gc_wig',
                         help='GC-content wiggle files',
                         required=False)
     parser.add_argument('--bin',  dest='bin',
-                        help=('Number of nt to use for binning'
+                        help=('Number of nt to use for binning '
                               'the final seqz file. Default: 50'),
                         default=50)
     parser.add_argument('--mem',  dest='mem',
@@ -132,6 +133,31 @@ def main():
     parser.add_argument('--output',  dest='output',
                         help='Output folder, default CWD.',
                         required=False)
+    parser.add_argument('-x', '--x-heterozygous', dest='female',
+                        help=('Flag to set when the X chromomeme '
+                              'is heterozygous. eg: set it for '
+                              'female genomes'), action='store_true')
+    parser.add_argument('--cellularity', dest='cellularity', type=float,
+                        help=('Run sequenza with a pre-defined cellularity '
+                              'value. A number between 0 and 1'),
+                        required=False)
+    parser.add_argument('--ploidy', dest='ploidy', type=float,
+                        help=('Run sequenza with a pre-defined ploidy '
+                              'value. A number between 0.9 and 10, 2 for a '
+                              'diploid genome'),
+                        required=False)
+    parser.add_argument('--cellularity-range', dest='cellularity_range',
+                        type=str, metavar='0-1',
+                        help=('Limit the cellularity search to a '
+                              'given range. Two numbers each between 0 and 1'
+                              'separated by "-". Default 0-1'),
+                        default='0-1')
+    parser.add_argument('--ploidy-range', dest='ploidy_range',
+                        type=str, metavar='0.9-10',
+                        help=('Limit the ploidy search to a '
+                              'given range. Two numbers each between '
+                              '0.9 and 10 separated by "-". Default 1-7'),
+                        default='1-7')
     parser.add_argument('--no_archive',  dest='no_arch',
                         help='Set to avoid tar of output.',
                         action='store_true')
@@ -181,7 +207,14 @@ def main():
                 '--bin_size', args.bin,
                 '--ncpu', args.ncpu,
                 '--sequenza_out', os.path.join(
-                    output_dir, 'sequenza', args.sample)]
+                    output_dir, 'sequenza', args.sample),
+                '--cellularity', args.cellularity,
+                '--ploidy', args.ploidy,
+                '--cellularity_range', args.cellularity_range,
+                '--ploidy_range', args.ploidy_range]
+    if args.female is True:
+        pype_cmd.append('--x_heterozygous', 'True')
+
     pype_cmd = shlex.split(' '.join(map(str, pype_cmd)))
     log.log.info('Prepare pype command line:')
     log.log.info(' '.join(map(str, pype_cmd)))
