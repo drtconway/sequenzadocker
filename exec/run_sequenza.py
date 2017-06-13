@@ -220,7 +220,7 @@ def main():
                 '--cellularity_range', args.cellularity_range,
                 '--ploidy_range', args.ploidy_range]
     if args.female is True:
-        pype_cmd.append('--x_heterozygous', 'True')
+        pype_cmd += ['--x_heterozygous', 'True']
 
     pype_cmd = shlex.split(' '.join(map(str, pype_cmd)))
     log.log.info('Prepare pype command line:')
