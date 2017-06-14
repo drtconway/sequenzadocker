@@ -15,11 +15,11 @@ RUN apt-get update \
     && python setup.py install --install-scripts=/usr/bin \
     && cd ../ && rm -rf sequenza_tools* \
     && mkdir /databases && chmod -R 7777 /databases \
-    && mkdir /data && chmod -R 7777 /data \
+    && mkdir /datatemp && chmod -R 7777 /datatemp \
     && pip install --no-cache-dir bio_pype \
     && pype repos install --force sequenza
 
-VOLUME /databases /data
+VOLUME /databases /datatemp
 
 ADD exec/install_sequenza.R /usr/local/install_sequenza.R
 ADD exec/run_sequenza.py /usr/bin/sequenza-pipeline
