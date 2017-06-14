@@ -167,11 +167,10 @@ def main():
     args = parser.parse_args()
     archive_res = not args.no_arch
     if args.output:
-        if os.path.isdir(args.output):
-            output_dir = args.output
-            archive_res = False
-        else:
-            output_dir = os.getcwd()
+        if not os.path.isdir(args.output):
+            os.makedirs(args.output)
+        output_dir = args.output
+        archive_res = False
     else:
         output_dir = os.getcwd()
     if args.mem:
