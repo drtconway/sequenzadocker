@@ -25,81 +25,151 @@ def create_symlinks(ref_dict, profile, log):
             os.symlink(ref_dict[key], profile.files[key])
 
 
-def index_fa_gz(fa_gz, log):
-    idx_genome = ['samtools', 'faidx', fa_gz]
-    idx_genome = shlex.split(' '.join(map(str, idx_genome)))
-    log.log.info('Index %s' % ' '.join(map(str, idx_genome)))
-    idx_genome_proc = subprocess.Popen(idx_genome)
-    idx_genome_proc.communicate()[0]
-    code = idx_genome_proc.returncode
-    if code > 0:
-        log.log.warning('Index of %s returned code %s' % (fa_gz, code))
-        if fa_gz.endswith('.gz'):
-            fa = fa_gz[:-3]
-            with open(fa, 'wt') as genome_fa:
-                try:
-                    log.log.info('Unzip %s to %s' % (fa_gz, fa))
-                    with gzip.open(fa_gz, 'rt') as genome_fa_gz:
-                        for line in genome_fa_gz:
-                            genome_fa.write(line)
-                except IOError:
-                    log.log.warning('IOError while unzip %s' % fa_gz)
-            log.log.info('Remove old %s' % fa_gz)
-            rm = ['rm', '-f', fa_gz]
-            rm = shlex.split(' '.join(map(str, rm)))
-            log.log.info('Remove %s' % ' '.join(map(str, rm)))
-            rm_proc = subprocess.Popen(rm)
-            rm_proc.communicate()[0]
 
-            log.log.info('Compress %s with bgzip' % fa)
-            bgzip = ['bgzip', '-f', fa]
-            bgzip = shlex.split(' '.join(map(str, bgzip)))
-            log.log.info('Bgzip compress %s' % ' '.join(map(str, bgzip)))
-            bgzip_proc = subprocess.Popen(bgzip)
-            bgzip_proc.communicate()[0]
-            idx_genome = ['samtools', 'faidx', fa_gz]
-            idx_genome = shlex.split(' '.join(map(str, idx_genome)))
-            log.log.info('Attemp #2 Index %s' % ' '.join(map(str, idx_genome)))
-            idx_genome_proc = subprocess.Popen(idx_genome)
-            idx_genome_proc.communicate()[0]
+def prepare_tmp_dirs(tempdir, log, subdirs=['databases', 'data', 'runs']):
+    if not os.path.isdir(tempdir):
+        os.makedirs(tempdir)
+    for subdir in subdirs:
+        subdir_tmp = os.path.join('/tmp', subdir)
+        subdir = os.path.join(tempdir, subdir)
+        if not os.path.isdir(subdir):
+            log.log.info('Prepare temporary folder %s' % subdir)
+            os.mkdir(subdir)
+            if subdir_tmp != subdir:
+                if not os.path.exists(subdir_tmp):
+                    log.log.info('Symlink temporary folder %s to %s' %
+                                 (subdir, subdir_tmp))
+                    os.symlink(subdir, subdir_tmp)
+                else:
+                    log.log.error('The temporary folder %s already exists' %
+                                  subdir_tmp)
 
 
-def setup_bams(tumor, normal, bam_path, profile_obj, log, wig):
+
+def check_returncode(process, title, command, log):
+    if process.returncode == 0:
+        log.log.info('%s with command %s succeeded' % (title, command))
+    else:
+        log.log.error('%s with command %s failed' % (title, command))
+        raise Exception('Error while executing %s' % command)
+
+
+def setup_bams(tumor, normal, tumor_bai, normal_bai,
+               bam_path, profile_obj, log):
+
     tumor_link = os.path.join(bam_path, 'tumor.bam')
     normal_link = os.path.join(bam_path, 'normal.bam')
+    tumor_bai_link = os.path.join(bam_path, 'tumor.bam.bai')
+    normal_bai_link = os.path.join(bam_path, 'normal.bam.bai')
     log.log.info('Symlink %s to %s' % (tumor, tumor_link))
     log.log.info('Symlink %s to %s' % (normal, normal_link))
     os.symlink(tumor, tumor_link)
     os.symlink(normal, normal_link)
     idx_tumor = ['samtools', 'index', tumor_link]
     idx_normal = ['samtools', 'index', normal_link]
-    gc50_wig = ['sequenza-utils', 'gc_wiggle',
-                '-f', profile_obj.files['genome_fa_gz'],
-                '-o', profile_obj.files['genome_gc_wig'],
-                '-w', 50]
 
     idx_tumor = shlex.split(' '.join(map(str, idx_tumor)))
     idx_normal = shlex.split(' '.join(map(str, idx_normal)))
+
+    if tumor_bai is None:
+        log.log.info('Index %s' % ' '.join(map(str, idx_tumor)))
+        idx_tumor_proc = subprocess.Popen(idx_tumor)
+        idx_tumor_proc.communicate()[0]
+        check_returncode(idx_tumor_proc, 'tumor bam index',
+                         ' '.join(map(str, idx_tumor)), log)
+    else:
+        log.log.info('Symlink %s to %s' % (tumor_bai, tumor_bai_link))
+        os.symlink(tumor_bai, tumor_bai_link)
+    if normal_bai is None:
+        log.log.info('Index %s' % ' '.join(map(str, idx_normal)))
+        idx_normal_proc = subprocess.Popen(idx_normal)
+        idx_normal_proc.communicate()[0]
+        check_returncode(idx_normal_proc, 'normal bam index',
+                         ' '.join(map(str, idx_normal)), log)
+    else:
+        log.log.info('Symlink %s to %s' % (normal_bai, normal_bai_link))
+        os.symlink(normal_bai, normal_bai_link)
+
+    return {'tumor': tumor_link, 'normal': normal_link}
+
+
+def setup_ref_files(wig, bgzip_ref, profile_obj, log):
+
+    idx_genome = ['samtools', 'faidx', profile_obj.files['genome_fa']]
+    idx_genome2 = ['samtools', 'faidx', profile_obj.files['genome_fa_gz']]
+    bgz_genome = ['bgzip', '-c', '-f', profile_obj.files['genome_fa']]
+
+    gc50_wig = ['sequenza-utils', 'gc_wiggle',
+                '-f', profile_obj.files['genome_fa'],
+                '-o', profile_obj.files['genome_gc_wig'],
+                '-w', 50]
+
+    idx_genome = shlex.split(' '.join(map(str, idx_genome)))
+    idx_genome2 = shlex.split(' '.join(map(str, idx_genome2)))
+    bgz_genome = shlex.split(' '.join(map(str, bgz_genome)))
     gc50_wig = shlex.split(' '.join(map(str, gc50_wig)))
 
-    log.log.info('Index %s' % ' '.join(map(str, idx_tumor)))
-    idx_tumor_proc = subprocess.Popen(idx_tumor)
-    idx_tumor_proc.communicate()[0]
-    log.log.info('Index %s' % ' '.join(map(str, idx_normal)))
-    idx_normal_proc = subprocess.Popen(idx_normal)
-    idx_normal_proc.communicate()[0]
+    def bgzip_fa(idx_genome2, bgz_genome, profile_obj, log)
+        os.unlink(profile_obj.files['genome_fa_gz'])
+        with open(profile_obj.files['genome_fa_gz'], 'wt') as genome_fa_gz:
+            log.log.info('Bgzip %s to %s' % (
+                profile_obj.files['genome_fa'],
+                profile_obj.files['genome_fa_gz']))
+            bgzip_genome_proc = subprocess.Popen(
+                bgz_genome, stdout=genome_fa_gz)
+            bgzip_genome_proc.communicate()[0]
+            check_returncode(bgzip_genome_proc, 'genome.fa bgzip',
+                             ' '.join(map(str, bgz_genome)), log)
 
-    index_fa_gz(profile_obj.files['genome_fa_gz'], log)
+    if bgzip_ref is True:
+        bgzip_fa(idx_genome2, bgz_genome, profile_obj, log)
 
+    log.log.info('Index %s' % ' '.join(map(str, idx_genome2)))
+    idx_genome2_proc = subprocess.Popen(idx_genome2)
+    idx_genome2_proc.communicate()[0]
+    genome_gz_fai = '%s.fai' % profile_obj.files['genome_fa_gz']
+    if os.path.isfile(genome_gz_fai):
+        bgzip_ref = False
+    else:
+        log.log.warning(('Failed to index genome.gz, '
+                         'will attempt to recover by '
+                         're-compressing with bgzip'))
+        bgzip_ref = True
+    with open(profile_obj.files['genome_fa'], 'wt') as genome_fa:
+        try:
+            log.log.info('Unzip %s to %s' % (profile_obj.files['genome_fa_gz'],
+                                             profile_obj.files['genome_fa']))
+            with gzip.open(profile_obj.files['genome_fa_gz'], 'rt') \
+                    as genome_fa_gz:
+                for line in genome_fa_gz:
+                    genome_fa.write(line)
+        except IOError:
+            log.log.warning('IOError while unzip %s' %
+                            profile_obj.files['genome_fa_gz'])
+
+    log.log.info('Index %s' % ' '.join(map(str, idx_genome)))
+    idx_genome_proc = subprocess.Popen(idx_genome)
+    idx_genome_proc.communicate()[0]
+    check_returncode(idx_genome_proc, 'genome.fa index',
+                     ' '.join(map(str, idx_genome)), log)
     if wig is None:
         log.log.info('GC wig %s' % ' '.join(map(str, gc50_wig)))
         gc50_wig_proc = subprocess.Popen(gc50_wig)
         gc50_wig_proc.communicate()[0]
+        check_returncode(gc50_wig_proc, 'GC wiggle',
+                         ' '.join(map(str, gc50_wig)), log)
     else:
         log.log.info('Symlink %s to %s' % (
             wig, profile_obj.files['genome_gc_wig']))
         os.symlink(wig, profile_obj.files['genome_gc_wig'])
-    return {'tumor': tumor_link, 'normal': normal_link}
+
+    if bgzip_ref is True:
+        bgzip_fa(idx_genome2, bgz_genome, profile_obj, log)
+        log.log.info('Index %s' % ' '.join(map(str, idx_genome2)))
+        idx_genome2_proc = subprocess.Popen(idx_genome2)
+        idx_genome2_proc.communicate()[0]
+        check_returncode(idx_genome2_proc, 'genome.fa.gz index',
+                         ' '.join(map(str, idx_genome2)), log)
 
 
 def main():
@@ -112,6 +182,10 @@ def main():
                         help='Normal Bam file',  required=True)
     parser.add_argument('--tumor-bam', '-t',  dest='tumor_bam',
                         help='Tumor Bam file',  required=True)
+    parser.add_argument('--normal-bam-index',  dest='normal_bai',
+                        help='Normal Bam file',  required=False)
+    parser.add_argument('--tumor-bam-index',  dest='tumor_bai',
+                        help='Tumor Bam file',  required=False)
     parser.add_argument('--reference-gz', '-f', dest='ref_gz',
                         help=('Genome reference gz-compressed file '
                               '(or plain text)'),
@@ -130,9 +204,6 @@ def main():
     parser.add_argument('--ncpu',  dest='ncpu',
                         help='Number of cpu to use. Default: autodetect',
                         type=int, required=False)
-    parser.add_argument('--output',  dest='output',
-                        help='Output folder, default CWD.',
-                        required=False)
     parser.add_argument('-x', '--x-heterozygous', dest='female',
                         help=('Flag to set when the X chromomeme '
                               'is heterozygous. eg: set it for '
@@ -161,33 +232,48 @@ def main():
     parser.add_argument('--no_archive',  dest='no_arch',
                         help='Set to avoid tar of output',
                         action='store_true')
+    parser.add_argument('--tmp',  dest='tempdir',
+                        help='Set the temporary folder',
+                        default='/tmp')
     args = parser.parse_args()
     archive_res = not args.no_arch
-    if args.output:
-        if not os.path.isdir(args.output):
-            os.makedirs(args.output)
-        output_dir = args.output
-        archive_res = False
-    else:
-        output_dir = os.getcwd()
     if args.mem:
         os.environ['PYPE_MEM'] = '%iG' % args.mem
     if args.ncpu:
         os.environ['PYPE_NCPU'] = '%i' % args.ncpu
+    try:
+        tempdir = os.environ['TEMPDIR']
+    except KeyError:
+        tempdir = args.tempdir
 
-    log_dir = os.path.join(output_dir, 'logs')
+    log_dir = os.path.join(os.getcwd(), 'logs')
     log = ExtLog('run_sequenza', log_dir, level=logging.INFO)
+
+
+    log.log.info('Prepare temporary diirectory structure')
+    prepare_tmp_dirs(tempdir, log, ['databases', 'data', 'workdir'])
+
+    output_dir = '/tmp/workdir'
+    results_dir = os.getcwd()
+
     log.log.info('Output results in folder %s' % output_dir)
     use_profile = 'default'
     log.log.info('Use profile %s' % use_profile)
     profile = get_profiles({})[use_profile]
 
-    ref_dict = {'genome_fa_gz': args.ref_gz}
-
+    if os.path.splitext(args.ref_gz)[1] is 'gz':
+        ref_dict = {'genome_fa_gz': args.ref_gz}
+        bgzip_ref = False
+    else:
+        ref_dict = {'genome_fa': args.ref_gz}
+        bgzip_ref = True
     create_symlinks(ref_dict, profile, log)
-    data_dir = '/data'
+
+    setup_ref_files(args.ref_gc_wig, bgzip_ref, profile, log)
+
     bam_files = setup_bams(args.tumor_bam, args.normal_bam,
-                           data_dir, profile, log, args.ref_gc_wig)
+                           args.tumor_bai, args.normal_bai,
+                           '/tmp/data/', profile, log)
 
     out_dirs = [os.path.join(output_dir, 'sequenza'),
                 os.path.join(output_dir, 'seqz')]
