@@ -1,7 +1,7 @@
 #!/services/tools/R-3.2.1/bin/R
 
 
-packages <- c("devtools", "readr", "iotools", "seqminer")
+packages <- c("readr", "iotools", "seqminer", "devtools")
 
 setRepositories(graphics = FALSE, ind = 1:6)
 chooseCRANmirror(graphics = FALSE, ind = 2)
