@@ -311,7 +311,7 @@ def main():
 
     if archive_res:
         sqz_part_file = os.path.join(
-            output_dir, '%s_parts_seqz.tar.gz' % args.sample)
+            results_dir, '%s_parts_seqz.tar.gz' % args.sample)
         log.log.info(
             'Create archive for seqz partial files in %s' % sqz_part_file)
         sqz_dir = os.path.join(output_dir, 'seqz')
@@ -328,7 +328,7 @@ def main():
         sqz_tar.close()
 
         sqz_bin_file = os.path.join(
-            output_dir, '%s_seqz_bin.tar.gz' % args.sample)
+            results_dir, '%s_seqz_bin.tar.gz' % args.sample)
         log.log.info(('Create archive for seqz binned and '
                       'indexed files in %s') % sqz_bin_file)
         sqz_bin_res_name = '%s_bin%s.seqz.gz' % (args.sample, args.bin)
@@ -349,13 +349,13 @@ def main():
         log.log.info('Archive sequenza results folder %s' %
                      os.path.join(output_dir, 'sequenza'))
         sequenza_tar = tarfile.open(os.path.join(
-            output_dir, '%s_sequenza.tar.gz' % args.sample), 'w:gz')
+            results_dir, '%s_sequenza.tar.gz' % args.sample), 'w:gz')
         sequenza_tar.add(
             os.path.join(output_dir, 'sequenza'), arcname='sequenza')
         sequenza_tar.close()
         log.log.info('Archive log directory %s' % log_dir)
         tar = tarfile.open(
-            os.path.join(output_dir, '%s_logs.tar.gz' % args.sample), 'w:gz')
+            os.path.join(results_dir, '%s_logs.tar.gz' % args.sample), 'w:gz')
         tar.add(log_dir, arcname='logs')
         tar.close()
     else:
