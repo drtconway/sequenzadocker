@@ -118,8 +118,24 @@ def setup_ref_files(wig, bgzip_ref, profile_obj, log):
             bgzip_genome_proc.communicate()[0]
             check_returncode(bgzip_genome_proc, 'genome.fa bgzip',
                              ' '.join(map(str, bgz_genome)), log)
+
+    def uzip_fa(profile_obj, log):
+        with open(profile_obj.files['genome_fa'], 'wt') as genome_fa:
+            try:
+                log.log.info('Unzip %s to %s' % (profile_obj.files['genome_fa_gz'],
+                                                 profile_obj.files['genome_fa']))
+                with gzip.open(profile_obj.files['genome_fa_gz'], 'rt') \
+                        as genome_fa_gz:
+                    for line in genome_fa_gz:
+                        genome_fa.write(line)
+            except IOError:
+                log.log.warning('IOError while unzip %s' %
+                                profile_obj.files['genome_fa_gz'])
+
     if bgzip_ref is True:
         bgzip_fa(idx_genome2, bgz_genome, profile_obj, log)
+    else:
+        uzip_fa(profile_obj, log)
 
     log.log.info('Index %s' % ' '.join(map(str, idx_genome2)))
     idx_genome2_proc = subprocess.Popen(idx_genome2)
@@ -132,17 +148,6 @@ def setup_ref_files(wig, bgzip_ref, profile_obj, log):
                          'will attempt to recover by '
                          're-compressing with bgzip'))
         bgzip_ref = True
-    with open(profile_obj.files['genome_fa'], 'wt') as genome_fa:
-        try:
-            log.log.info('Unzip %s to %s' % (profile_obj.files['genome_fa_gz'],
-                                             profile_obj.files['genome_fa']))
-            with gzip.open(profile_obj.files['genome_fa_gz'], 'rt') \
-                    as genome_fa_gz:
-                for line in genome_fa_gz:
-                    genome_fa.write(line)
-        except IOError:
-            log.log.warning('IOError while unzip %s' %
-                            profile_obj.files['genome_fa_gz'])
 
     log.log.info('Index %s' % ' '.join(map(str, idx_genome)))
     idx_genome_proc = subprocess.Popen(idx_genome)
