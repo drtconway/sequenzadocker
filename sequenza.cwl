@@ -12,7 +12,7 @@ dct:creator:
 
 requirements:
   - class: DockerRequirement
-    dockerPull: registry.hub.docker.com/sequenza/sequenza:latest
+    dockerPull: sequenza:latest
 
 hints:
   - class: ResourceRequirement
@@ -36,30 +36,40 @@ inputs:
     inputBinding:
       position: 3
       prefix: --tumor-bam
-  reference-gz:
-    type: File
+  normal-bam-index:
+    type: ["null", File]
     inputBinding:
       position: 4
+      prefix: --normal-bam-index
+  tumor-bam-index:
+    type: ["null", File]
+    inputBinding:
+      position: 5
+      prefix: --tumor-bam-index
+  reference:
+    type: File
+    inputBinding:
+      position: 6
       prefix: --reference-gz
   gc_wig:
     type: ["null", File]
     inputBinding:
-      position: 5
+      position: 7
       prefix: --gc_wig
   bin:
     type: ["null", int]
     inputBinding:
-      position: 6
+      position: 8
       prefix: --bin
   mem:
     type: ["null", int]
     inputBinding:
-      position: 7
+      position: 9
       prefix: --mem
   ncpu:
     type: ["null", int]
     inputBinding:
-      position: 8
+      position: 10
       prefix: --ncpu
 outputs:
   archives:
