@@ -1,5 +1,5 @@
 FROM r-base:3.5.0
-MAINTAINER Francesco Favero <favero@cbs.dtu.dk>
+MAINTAINER Francesco Favero <francesco.favero@bric.ku.dk>
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        libcurl4-openssl-dev \
