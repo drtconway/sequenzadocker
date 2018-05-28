@@ -108,9 +108,7 @@ def setup_ref_files(wig, bgzip_ref, profile_obj, log):
     idx_genome2 = shlex.split(' '.join(map(str, idx_genome2)))
     bgz_genome = shlex.split(' '.join(map(str, bgz_genome)))
     gc50_wig = shlex.split(' '.join(map(str, gc50_wig)))
-
-    def bgzip_fa(idx_genome2, bgz_genome, profile_obj, log)
-        os.unlink(profile_obj.files['genome_fa_gz'])
+    def bgzip_fa(idx_genome2, bgz_genome, profile_obj, log):
         with open(profile_obj.files['genome_fa_gz'], 'wt') as genome_fa_gz:
             log.log.info('Bgzip %s to %s' % (
                 profile_obj.files['genome_fa'],
@@ -120,7 +118,6 @@ def setup_ref_files(wig, bgzip_ref, profile_obj, log):
             bgzip_genome_proc.communicate()[0]
             check_returncode(bgzip_genome_proc, 'genome.fa bgzip',
                              ' '.join(map(str, bgz_genome)), log)
-
     if bgzip_ref is True:
         bgzip_fa(idx_genome2, bgz_genome, profile_obj, log)
 
@@ -152,6 +149,14 @@ def setup_ref_files(wig, bgzip_ref, profile_obj, log):
     idx_genome_proc.communicate()[0]
     check_returncode(idx_genome_proc, 'genome.fa index',
                      ' '.join(map(str, idx_genome)), log)
+    if bgzip_ref is True:
+        os.unlink(profile_obj.files['genome_fa_gz'])
+        bgzip_fa(idx_genome2, bgz_genome, profile_obj, log)
+        log.log.info('Index %s' % ' '.join(map(str, idx_genome2)))
+        idx_genome2_proc = subprocess.Popen(idx_genome2)
+        idx_genome2_proc.communicate()[0]
+        check_returncode(idx_genome2_proc, 'genome.fa.gz index',
+                         ' '.join(map(str, idx_genome2)), log)
     if wig is None:
         log.log.info('GC wig %s' % ' '.join(map(str, gc50_wig)))
         gc50_wig_proc = subprocess.Popen(gc50_wig)
@@ -163,13 +168,6 @@ def setup_ref_files(wig, bgzip_ref, profile_obj, log):
             wig, profile_obj.files['genome_gc_wig']))
         os.symlink(wig, profile_obj.files['genome_gc_wig'])
 
-    if bgzip_ref is True:
-        bgzip_fa(idx_genome2, bgz_genome, profile_obj, log)
-        log.log.info('Index %s' % ' '.join(map(str, idx_genome2)))
-        idx_genome2_proc = subprocess.Popen(idx_genome2)
-        idx_genome2_proc.communicate()[0]
-        check_returncode(idx_genome2_proc, 'genome.fa.gz index',
-                         ' '.join(map(str, idx_genome2)), log)
 
 
 def main():
@@ -261,7 +259,7 @@ def main():
     log.log.info('Use profile %s' % use_profile)
     profile = get_profiles({})[use_profile]
 
-    if os.path.splitext(args.ref_gz)[1] is 'gz':
+    if os.path.splitext(args.ref_gz)[1] == '.gz':
         ref_dict = {'genome_fa_gz': args.ref_gz}
         bgzip_ref = False
     else:
