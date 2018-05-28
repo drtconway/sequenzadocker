@@ -1,4 +1,4 @@
-FROM r-base:3.5.0
+FROM r-base:3.4.4
 MAINTAINER Francesco Favero <francesco.favero@bric.ku.dk>
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -28,7 +28,7 @@ ADD exec/run_sequenza.py /usr/bin/sequenza-pipeline
 RUN chmod +x /usr/bin/sequenza-pipeline
 RUN useradd -ms /bin/bash sequenza
 
-#USER sequenza
-#WORKDIR /home/sequenza
+USER sequenza
+WORKDIR /home/sequenza
 
 CMD ["/bin/bash"]
