@@ -2,7 +2,7 @@ FROM r-base:3.5.0
 MAINTAINER Francesco Favero <francesco.favero@bric.ku.dk>
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-       libcurl4-openssl-dev \
+       libcurl4-openssl-dev libssl-dev \
        libxml2-dev \
        samtools \
        tabix \
@@ -22,10 +22,10 @@ RUN apt-get update \
 VOLUME /databases /data
 
 ADD exec/install_sequenza.R /usr/local/install_sequenza.R
-ADD exec/run_sequenza.py /usr/bin/sequenza-pipeline
 RUN Rscript /usr/local/install_sequenza.R \
-    && rm /usr/local/install_sequenza.R \
-    && chmod +x /usr/bin/sequenza-pipeline
+    && rm /usr/local/install_sequenza.R
+ADD exec/run_sequenza.py /usr/bin/sequenza-pipeline
+RUN chmod +x /usr/bin/sequenza-pipeline
 RUN useradd -ms /bin/bash sequenza
 
 #USER sequenza
