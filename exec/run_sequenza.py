@@ -207,10 +207,25 @@ def main():
     parser.add_argument('--ncpu',  dest='ncpu',
                         help='Number of cpu to use. Default: autodetect',
                         type=int, required=False)
+    parser.add_argument('--breaks',  dest='breaks',
+                        help=('Optional BED files defining the breakpoins '
+                               '-instead of the built-in segmentation-'),
+                        type=str, required=False)
     parser.add_argument('-x', '--x-heterozygous', dest='female',
                         help=('Flag to set when the X chromomeme '
                               'is heterozygous. eg: set it for '
                               'female genomes'), action='store_true')
+    parser.add_argument('--store_seqztmp', dest='seqztmp',
+                        help='Store temporary seqz files',
+                        action='store_true')
+    parser.add_argument('--ignore_normal', dest='ignore_normal',
+                        help=('Use the GC-normalized tumor depth instead '
+                              'of computing the depth-ratio vs the normal sample'),
+                        action='store_true')
+    parser.add_argument('--ratio_priority', dest='ratio_priority',
+                        help=('Consider only the depth-ration (and not the B-allele '
+                              'frequency) when fit the segments to a model'),
+                        action='store_true')
     parser.add_argument('--cellularity', dest='cellularity', type=float,
                         help=('Run sequenza with a pre-defined cellularity '
                               'value. A number between 0 and 1'),
@@ -276,7 +291,15 @@ def main():
 
     bam_files = setup_bams(args.tumor_bam, args.normal_bam,
                            args.tumor_bai, args.normal_bai,
-                           '/tmp/data/', profile, log)
+                           '/tmp/data', profile, log)
+    if args.breaks is not None:
+        if args.breaks.endswith('.gz'):
+            breaks_file = 'breaks.txt.gz'
+        else:
+            breaks_file = 'breaks.txt'
+        breaks_link = os.path.join('/tmp/data', breaks_file)
+        log.log.info('Symlink %s to %s' % (args.breaks, breaks_link))
+        os.symlink(args.breaks, breaks_link)
 
     out_dirs = [os.path.join(output_dir, 'sequenza'),
                 os.path.join(output_dir, 'seqz')]
@@ -302,6 +325,12 @@ def main():
                 '--ploidy_range', args.ploidy_range]
     if args.female is True:
         pype_cmd += ['--x_heterozygous', 'True']
+    if args.ratio_priority is True:
+        pype_cmd += ['--ratio_priority', 'True']
+    if args.ignore_normal is True:
+        pype_cmd += ['--ignore_normal', 'True']
+    if args.breaks is not None:
+        pype_cmd += ['--breaks', breaks_link]
 
     pype_cmd = shlex.split(' '.join(map(str, pype_cmd)))
     log.log.info('Prepare pype command line:')
@@ -310,22 +339,23 @@ def main():
     pype_proc.communicate()[0]
 
     if archive_res:
-        sqz_part_file = os.path.join(
-            results_dir, '%s_parts_seqz.tar.gz' % args.sample)
-        log.log.info(
-            'Create archive for seqz partial files in %s' % sqz_part_file)
         sqz_dir = os.path.join(output_dir, 'seqz')
 
-        sqz_tar = tarfile.open(sqz_part_file, 'w:gz')
-        for result in os.listdir(sqz_dir):
-            result = os.path.join(sqz_dir, result)
-            if os.path.isfile(result):
-                base_path, file_name = os.path.split(result)
-                if file_name.startswith('%s_part_' % args.sample):
-                    log.log.info(
-                        'Add %s to %s archive' % (result, sqz_part_file))
-                    sqz_tar.add(result, arcname=file_name)
-        sqz_tar.close()
+        if args.seqztmp:
+            sqz_part_file = os.path.join(
+                results_dir, '%s_parts_seqz.tar.gz' % args.sample)
+            log.log.info(
+                'Create archive for seqz partial files in %s' % sqz_part_file)
+            sqz_tar = tarfile.open(sqz_part_file, 'w:gz')
+            for result in os.listdir(sqz_dir):
+                result = os.path.join(sqz_dir, result)
+                if os.path.isfile(result):
+                    base_path, file_name = os.path.split(result)
+                    if file_name.startswith('%s_part_' % args.sample):
+                        log.log.info(
+                            'Add %s to %s archive' % (result, sqz_part_file))
+                        sqz_tar.add(result, arcname=file_name)
+            sqz_tar.close()
 
         sqz_bin_file = os.path.join(
             results_dir, '%s_seqz_bin.tar.gz' % args.sample)
