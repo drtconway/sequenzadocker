@@ -61,15 +61,35 @@ inputs:
     inputBinding:
       position: 8
       prefix: --bin
+  x-heterozygous:
+    type: boolean
+    inputBinding:
+      position: 9
+      prefix: --x-heterozygous
+  breaks:
+    type: ["null", File]
+    inputBinding:
+      position: 10
+      prefix: --breaks
+  ignore_normal:
+    type: boolean
+    inputBinding:
+      position: 11
+      prefix: --ignore_normal
+  ratio_priority:
+    type: boolean
+    inputBinding:
+      position: 12
+      prefix: --ratio_priority
   mem:
     type: ["null", int]
     inputBinding:
-      position: 9
+      position: 13
       prefix: --mem
   ncpu:
     type: ["null", int]
     inputBinding:
-      position: 10
+      position: 14
       prefix: --ncpu
 outputs:
   archives:
