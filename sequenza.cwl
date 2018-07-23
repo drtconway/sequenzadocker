@@ -12,7 +12,7 @@ dct:creator:
 
 requirements:
   - class: DockerRequirement
-    dockerPull: registry.hub.docker.com/sequenza/sequenza:latest
+    dockerPull: registry.hub.docker.com/sequenza/sequenza:2.2.0.9000
 
 hints:
   - class: ResourceRequirement
