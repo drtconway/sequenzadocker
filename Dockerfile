@@ -16,7 +16,7 @@ RUN apt-get update \
     && cd ../ && rm -rf sequenza_tools* \
     && mkdir /databases && chmod -R 7777 /databases \
     && mkdir /data && chmod -R 7777 /data \
-    && pip install --no-cache-dir bio_pype \
+    && pip install --no-cache-dir bio_pype==1.0.1 \
     && pype repos install --force sequenza
 
 VOLUME /databases /data
