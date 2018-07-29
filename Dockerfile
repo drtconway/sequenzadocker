@@ -1,4 +1,4 @@
-FROM r-base:3.4.4
+FROM r-base:3.5.1
 MAINTAINER Francesco Favero <francesco.favero@bric.ku.dk>
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
