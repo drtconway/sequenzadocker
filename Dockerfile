@@ -9,11 +9,11 @@ RUN apt-get update \
        bwa \
        python python-dev python-setuptools python-pip \
     && rm -rf /var/lib/apt/lists/* \
-    && wget https://bitbucket.org/sequenza_tools/sequenza-utils/get/master.tar.gz -O sequenza_tools.tar.gz \
-    && tar -xvpf sequenza_tools.tar.gz \
-    && cd sequenza_tools-sequenza-utils* && python setup.py test \
+    && wget https://bitbucket.org/sequenzatools/sequenza-utils/get/master.tar.gz -O sequenzatools.tar.gz \
+    && tar -xvpf sequenzatools.tar.gz \
+    && cd sequenzatools-sequenza-utils* && python setup.py test \
     && python setup.py install --install-scripts=/usr/bin \
-    && cd ../ && rm -rf sequenza_tools* \
+    && cd ../ && rm -rf sequenzatools* \
     && mkdir /databases && chmod -R 7777 /databases \
     && mkdir /data && chmod -R 7777 /data \
     && pip install --no-cache-dir bio_pype==1.0.1 \
