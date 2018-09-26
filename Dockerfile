@@ -13,10 +13,14 @@ RUN apt-get update \
     && tar -xvpf sequenzatools.tar.gz \
     && cd sequenzatools-sequenza-utils* && python setup.py test \
     && python setup.py install --install-scripts=/usr/bin \
-    && cd ../ && rm -rf sequenzatools* \
+    && cd ../ && rm -rf *sequenzatools* \
     && mkdir /databases && chmod -R 7777 /databases \
     && mkdir /data && chmod -R 7777 /data \
-    && pip install --no-cache-dir bio_pype==1.0.1 \
+    && wget https://bitbucket.org/ffavero/bio_pype/get/e723bf5.tar.gz -O bio_pype.tar.gz \
+    && tar -xvpf bio_pype.tar.gz \
+    && cd ffavero-bio_pype* && python setup.py test \
+    && python setup.py install --install-scripts=/usr/bin \
+    && cd ../ && rm -rf *bio_pype* \
     && pype repos install --force sequenza
 
 VOLUME /databases /data
