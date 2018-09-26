@@ -1,4 +1,4 @@
-![](https://bytebucket.org/sequenza_tools/icons/raw/da034ccc8c1ab5f5f8e020402267bd3f2dd5d361/svg/sequenza_tools/sequenzaalpha_150.svg)
+![](https://bytebucket.org/sequenzatools/icons/raw/da034ccc8c1ab5f5f8e020402267bd3f2dd5d361/svg/sequenza_tools/sequenzaalpha_150.svg)
 
 ![build_status](https://img.shields.io/docker/build/sequenza/sequenza.svg)
 ![docker_pulls](https://img.shields.io/docker/pulls/sequenza/sequenza.svg)
