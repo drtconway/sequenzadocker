@@ -7,6 +7,7 @@ RUN apt-get update \
       python \
       python-dev \
       python-setuptools \
+      python-pip \
       build-essential \
    && rm -rf /var/lib/apt/lists/*
 
