@@ -1,4 +1,4 @@
-FROM r-base:latest
+FROM r-base:3.2.5
 MAINTAINER Francesco Favero <favero@cbs.dtu.dk>
 RUN apt-get update \
    && apt-get install -y --no-install-recommends \
