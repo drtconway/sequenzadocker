@@ -2,12 +2,9 @@ FROM r-base:3.4.4
 MAINTAINER Francesco Favero <favero@cbs.dtu.dk>
 RUN apt-get update \
    && apt-get install -y --no-install-recommends \
-      samtools \
-      pypy \
-      python \
-      python-dev \
-      python-setuptools \
-      python-pip \
+      samtools bwa tabix \
+      pypy python \
+      python-dev python-setuptools python-pip \
       build-essential \
    && rm -rf /var/lib/apt/lists/*
 
