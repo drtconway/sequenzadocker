@@ -4,7 +4,7 @@ RUN apt-get update \
    && apt-get install -y --no-install-recommends \
       samtools \
       pypy \
-      python2.7 \
+      python \
    && rm -rf /var/lib/apt/lists/*
 
 ADD exec/sequenza-utils /usr/local/bin/sequenza-utils
