@@ -5,7 +5,9 @@ RUN apt-get update \
       samtools \
       pypy \
       python \
+      python-dev \
       python-setuptools \
+      build-essential \
    && rm -rf /var/lib/apt/lists/*
 
 ADD exec/sequenza-utils /usr/local/bin/sequenza-utils
