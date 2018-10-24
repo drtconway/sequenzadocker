@@ -10,7 +10,7 @@ Allele-specific SCNA analysis from tumor/normal sequencing with the sequenza doc
 
 *Dockstore*
 
-Use this sample [sequenza_cwl.json](https://bitbucket.org/sequenza_tools/sequenza_docker/raw/4d5571f6bb07ba0d99789973efab44723118605a/sequenza_cwl.json) with public URLs for sample data.
+Use this sample [sequenza_cwl.json](https://bitbucket.org/sequenzatools/sequenza_docker/raw/4d5571f6bb07ba0d99789973efab44723118605a/sequenza_cwl.json) with public URLs for sample data.
 
 ```
    $ dockstore tool launch --entry registry.hub.docker.com/sequenza/sequenza  --json sequenza_cwl.json
