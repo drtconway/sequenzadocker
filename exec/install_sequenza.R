@@ -11,4 +11,4 @@ install.packages(packages)
 library(devtools) 
 
 install_git("https://bitbucket.org/sequenzatools/sequenza.git",
-    branch="cleanup")
+    branch="3.0.0")
