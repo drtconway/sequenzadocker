@@ -9,7 +9,7 @@ RUN apt-get update \
        bwa \
        python python-dev python-setuptools python-pip \
     && rm -rf /var/lib/apt/lists/* \
-    && wget https://bitbucket.org/sequenzatools/sequenza-utils/get/master.tar.gz -O sequenzatools.tar.gz \
+    && wget https://bitbucket.org/sequenzatools/sequenza-utils/get/3.0.0.tar.gz -O sequenzatools.tar.gz \
     && tar -xvpf sequenzatools.tar.gz \
     && cd sequenzatools-sequenza-utils* && python setup.py test \
     && python setup.py install --install-scripts=/usr/bin \
